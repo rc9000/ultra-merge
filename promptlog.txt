@@ -1,0 +1,5 @@
+
+codanger exec "build the tool as described"
+ -> worked until docker not installed
+codanger exec "continue to build the tool as described"
+ -> bickering about testing or not
