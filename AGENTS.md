@@ -22,3 +22,4 @@
  * just build images locally, no pushing to registries
  * check online for the latest versions before building stuff, don't use node 20 when 24 is already out.
  * always run the docker container with host port 3000 exposed to container port 3000 (e.g. `-p 3000:3000`)
+ * always build the docker image after finishing changes
