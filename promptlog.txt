@@ -3,3 +3,7 @@ codanger exec "build the tool as described"
  -> worked until docker not installed
 codanger exec "continue to build the tool as described"
  -> bickering about testing or not
+codanger to session
+    build the docker container, run the tests until everything works, run it with a port exposed, and give me the url
+    please expose port 3000 on the host also
+    this is great. allow reordering the files by dragging after being dropped in.

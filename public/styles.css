@@ -171,6 +171,14 @@ h1 {
   border-radius: 12px;
   background: #f6f7fb;
   font-size: 0.9rem;
+  gap: 10px;
+}
+
+.drag-handle {
+  font-size: 1rem;
+  color: #9aa2b1;
+  cursor: grab;
+  user-select: none;
 }
 
 .file-name {
@@ -178,6 +186,16 @@ h1 {
   text-overflow: ellipsis;
   white-space: nowrap;
   max-width: 70%;
+}
+
+.file-row.dragging-row {
+  opacity: 0.6;
+  cursor: grabbing;
+}
+
+.file-row.drag-over {
+  outline: 2px solid #ffd3c6;
+  background: #fff1eb;
 }
 
 .remove {
