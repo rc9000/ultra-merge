@@ -8,3 +8,10 @@
  * there is an option to include a blank page inbetween 
  * after merging, allow downloading the pdf
  * build a docker image for easy self-hosting
+
+## Special Instructions
+
+ * create and use tests
+ * prefix all commits with "AI commit:"
+ * git has no remote, no pushing
+ * just build images locally, no pushing to registries
