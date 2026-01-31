@@ -1,6 +1,6 @@
-# trusted-merge
+# ultra-merge
 
-trusted-merge is a trustworthy tool to merge PDFs online. It uses `pdfunite` under the hood, supports drag-and-drop uploads (up to 42 files), and can insert blank pages between PDFs before downloading the merged result.
+ultra-merge is a trustworthy tool to merge PDFs online. It uses `pdfunite` under the hood, supports drag-and-drop uploads (up to 42 files), and can insert blank pages between PDFs before downloading the merged result.
 
 ## Requirements
 
@@ -22,14 +22,14 @@ Open `http://localhost:3000`.
 Build and run locally:
 
 ```bash
-docker build -t trusted-merge:local .
-docker run --rm -p 3000:3000 trusted-merge:local
+docker build -t ultra-merge:local .
+docker run --rm -p 3000:3000 ultra-merge:local
 ```
 
 Run tests inside the image:
 
 ```bash
-docker run --rm trusted-merge:local npm test
+docker run --rm ultra-merge:local npm test
 ```
 
 ## Tests

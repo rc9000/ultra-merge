@@ -98,7 +98,7 @@ app.post("/api/merge", (req, res) => {
       return;
     }
 
-    const jobDir = await fs.mkdtemp(path.join(os.tmpdir(), "trusted-merge-"));
+    const jobDir = await fs.mkdtemp(path.join(os.tmpdir(), "ultra-merge-"));
     const cleanup = async () => removeDir(jobDir);
 
     res.on("finish", cleanup);
@@ -163,9 +163,19 @@ app.post("/api/merge", (req, res) => {
 });
 
 if (require.main === module) {
-  app.listen(port, () => {
-    console.log(`trusted-merge running on port ${port}`);
+  const server = app.listen(port, () => {
+    console.log(`ultra-merge running on port ${port}`);
   });
+
+  const shutdown = (signal) => {
+    console.log(`Received ${signal}, shutting down.`);
+    server.close(() => {
+      process.exit(0);
+    });
+  };
+
+  process.on("SIGINT", () => shutdown("SIGINT"));
+  process.on("SIGTERM", () => shutdown("SIGTERM"));
 }
 
 module.exports = { app };

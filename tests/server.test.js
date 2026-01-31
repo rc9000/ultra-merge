@@ -13,7 +13,7 @@ function fakePdfBuffer() {
   return Buffer.from("%PDF-1.4\n1 0 obj\n<< /Type /Catalog >>\nendobj\ntrailer\n<< /Root 1 0 R >>\n%%EOF\n");
 }
 
-describe("trusted-merge API", () => {
+describe("ultra-merge API", () => {
   beforeEach(() => {
     mockExecFile.mockReset();
     mockExecFile.mockImplementation((command, args, options, callback) => {
