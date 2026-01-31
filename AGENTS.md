@@ -9,9 +9,14 @@
  * after merging, allow downloading the pdf
  * build a docker image for easy self-hosting
 
+## Testing
+
+ * create and use tests extensively
+ * include the tests and their reuirements in the docker image, so they can be run in a reproducible enviroment
+ * after changing things or adding features, run all the tests without asking, repeat until successful
+
 ## Special Instructions
 
- * create and use tests
  * prefix all commits with "AI commit:"
  * git has no remote, no pushing
  * just build images locally, no pushing to registries
