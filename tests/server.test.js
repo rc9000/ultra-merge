@@ -1,4 +1,12 @@
+const fs = require("fs/promises");
 const request = require("supertest");
+
+const mockExecFile = jest.fn();
+
+jest.mock("child_process", () => ({
+  execFile: (...args) => mockExecFile(...args)
+}));
+
 const { app } = require("../server/index");
 
 function fakePdfBuffer() {
@@ -6,6 +14,35 @@ function fakePdfBuffer() {
 }
 
 describe("trusted-merge API", () => {
+  beforeEach(() => {
+    mockExecFile.mockReset();
+    mockExecFile.mockImplementation((command, args, options, callback) => {
+      if (command === "pdfinfo") {
+        callback(null, "Page size: 612 x 792 pts\n", "");
+        return;
+      }
+
+      if (command === "gs") {
+        const outputIndex = args.indexOf("-o");
+        const outputPath = args[outputIndex + 1];
+        fs.writeFile(outputPath, "%PDF-1.4\n%%EOF\n")
+          .then(() => callback(null, "", ""))
+          .catch(callback);
+        return;
+      }
+
+      if (command === "pdfunite") {
+        const outputPath = args[args.length - 1];
+        fs.writeFile(outputPath, "%PDF-1.4\n%%EOF\n")
+          .then(() => callback(null, "", ""))
+          .catch(callback);
+        return;
+      }
+
+      callback(new Error(`Unexpected command: ${command}`));
+    });
+  });
+
   it("returns health ok", async () => {
     const response = await request(app).get("/health");
     expect(response.status).toBe(200);
@@ -37,5 +74,34 @@ describe("trusted-merge API", () => {
     const response = await req;
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/42/i);
+  });
+
+  it("merges PDFs and returns a download", async () => {
+    const response = await request(app)
+      .post("/api/merge")
+      .field("includeBlank", "false")
+      .attach("files", fakePdfBuffer(), "one.pdf")
+      .attach("files", fakePdfBuffer(), "two.pdf");
+
+    expect(response.status).toBe(200);
+    expect(response.headers["content-disposition"]).toMatch(/merged\.pdf/);
+    expect(mockExecFile).toHaveBeenCalledWith(
+      "pdfunite",
+      expect.arrayContaining([expect.stringContaining("merged.pdf")]),
+      expect.any(Object),
+      expect.any(Function)
+    );
+  });
+
+  it("inserts blank pages when requested", async () => {
+    const response = await request(app)
+      .post("/api/merge")
+      .field("includeBlank", "true")
+      .attach("files", fakePdfBuffer(), "one.pdf")
+      .attach("files", fakePdfBuffer(), "two.pdf");
+
+    expect(response.status).toBe(200);
+    const commands = mockExecFile.mock.calls.map((call) => call[0]);
+    expect(commands).toEqual(["pdfinfo", "gs", "pdfunite"]);
   });
 });

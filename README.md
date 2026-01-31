@@ -26,6 +26,12 @@ docker build -t trusted-merge:local .
 docker run --rm -p 3000:3000 trusted-merge:local
 ```
 
+Run tests inside the image:
+
+```bash
+docker run --rm trusted-merge:local npm test
+```
+
 ## Tests
 
 ```bash

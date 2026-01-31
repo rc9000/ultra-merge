@@ -7,10 +7,11 @@ RUN apt-get update \
 WORKDIR /app
 
 COPY package.json package-lock.json* ./
-RUN npm install --omit=dev
+RUN npm ci
 
 COPY server ./server
 COPY public ./public
+COPY tests ./tests
 
 ENV PORT=3000
 EXPOSE 3000
