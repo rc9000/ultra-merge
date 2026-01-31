@@ -15,3 +15,4 @@
  * prefix all commits with "AI commit:"
  * git has no remote, no pushing
  * just build images locally, no pushing to registries
+ * check online for the latest versions before building stuff, don't use node 20 when 24 is already out.

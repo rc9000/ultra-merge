@@ -1,0 +1,278 @@
+@import url("https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600&family=Space+Grotesk:wght@500;700&display=swap");
+
+:root {
+  --ink: #0f1b2d;
+  --glow: #f5f0e6;
+  --panel: #ffffff;
+  --accent: #ff7a59;
+  --accent-2: #2d6cdf;
+  --shadow: rgba(15, 27, 45, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: "Sora", sans-serif;
+  color: var(--ink);
+  background: radial-gradient(circle at top left, #f9f2df 0%, #fdf8f1 40%, #ecf0ff 100%);
+  overflow-x: hidden;
+}
+
+.orb {
+  position: fixed;
+  width: 420px;
+  height: 420px;
+  border-radius: 50%;
+  filter: blur(30px);
+  opacity: 0.45;
+  pointer-events: none;
+  animation: float 10s ease-in-out infinite;
+}
+
+.orb-one {
+  background: #ffd3c6;
+  top: -120px;
+  right: -120px;
+}
+
+.orb-two {
+  background: #c9dcff;
+  bottom: -160px;
+  left: -80px;
+  animation-delay: 2s;
+}
+
+.shell {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 64px 24px 48px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero {
+  margin-bottom: 32px;
+  animation: fadeUp 0.8s ease both;
+}
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  font-size: 0.75rem;
+  margin: 0 0 12px;
+  color: #6b6f7a;
+}
+
+h1 {
+  font-family: "Space Grotesk", sans-serif;
+  font-size: clamp(2.4rem, 3vw, 3.4rem);
+  margin: 0 0 12px;
+}
+
+.lede {
+  max-width: 620px;
+  font-size: 1.05rem;
+  color: #3f4654;
+}
+
+.panel {
+  background: var(--panel);
+  border-radius: 24px;
+  padding: 28px;
+  box-shadow: 0 30px 80px -40px var(--shadow);
+  animation: fadeUp 0.8s ease 0.2s both;
+}
+
+.dropzone {
+  position: relative;
+  border: 2px dashed #d1d7e3;
+  border-radius: 20px;
+  padding: 40px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.dropzone input {
+  opacity: 0;
+  position: absolute;
+  inset: 0;
+  cursor: pointer;
+}
+
+.dropzone.dragging {
+  border-color: var(--accent);
+  background: #fff6f2;
+}
+
+.dropzone-content .badge {
+  display: inline-block;
+  background: var(--accent-2);
+  color: white;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.dropzone-content p {
+  margin: 0 0 8px;
+  font-size: 1.1rem;
+}
+
+.hint {
+  font-size: 0.85rem;
+  color: #7a8191;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  margin: 20px 0 12px;
+  gap: 12px;
+}
+
+.checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.95rem;
+}
+
+.checkbox input {
+  width: 18px;
+  height: 18px;
+}
+
+.count {
+  font-size: 0.85rem;
+  color: #7a8191;
+}
+
+.file-list {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 24px;
+}
+
+.file-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: #f6f7fb;
+  font-size: 0.9rem;
+}
+
+.file-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 70%;
+}
+
+.remove {
+  border: none;
+  background: transparent;
+  color: #d24b3f;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+}
+
+.primary {
+  border: none;
+  padding: 14px 28px;
+  border-radius: 999px;
+  background: var(--accent);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.primary:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px -12px rgba(255, 122, 89, 0.6);
+}
+
+.status {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #3f4654;
+}
+
+.status[data-type="error"] {
+  color: #d24b3f;
+}
+
+.status[data-type="success"] {
+  color: #1b7f5a;
+}
+
+.status[data-type="warning"] {
+  color: #b56a2a;
+}
+
+.footer {
+  margin-top: 32px;
+  font-size: 0.85rem;
+  color: #7a8191;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(20px);
+  }
+}
+
+@media (max-width: 600px) {
+  .shell {
+    padding: 48px 18px 40px;
+  }
+
+  .panel {
+    padding: 22px;
+  }
+
+  .actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
