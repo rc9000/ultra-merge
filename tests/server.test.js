@@ -22,6 +22,32 @@ describe("ultra-merge API", () => {
         return;
       }
 
+      if (command === "img2pdf") {
+        const outputIndex = args.indexOf("-o");
+        const outputPath = args[outputIndex + 1];
+        fs.writeFile(outputPath, "%PDF-1.4\n%%EOF\n")
+          .then(() => callback(null, "", ""))
+          .catch(callback);
+        return;
+      }
+
+      if (command === "enscript") {
+        const outputIndex = args.indexOf("-o");
+        const outputPath = args[outputIndex + 1];
+        fs.writeFile(outputPath, "%!PS\n%%EOF\n")
+          .then(() => callback(null, "", ""))
+          .catch(callback);
+        return;
+      }
+
+      if (command === "ps2pdf") {
+        const outputPath = args[1];
+        fs.writeFile(outputPath, "%PDF-1.4\n%%EOF\n")
+          .then(() => callback(null, "", ""))
+          .catch(callback);
+        return;
+      }
+
       if (command === "gs") {
         const outputIndex = args.indexOf("-o");
         const outputPath = args[outputIndex + 1];
@@ -60,10 +86,10 @@ describe("ultra-merge API", () => {
   it("rejects non-pdf files", async () => {
     const response = await request(app)
       .post("/api/merge")
-      .attach("files", Buffer.from("hello"), "notes.txt");
+      .attach("files", Buffer.from("hello"), "notes.docx");
 
     expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/pdfs/i);
+    expect(response.body.error).toMatch(/pdf|png|jpg|txt/i);
   });
 
   it("rejects uploads over 42 files", async () => {
@@ -74,6 +100,30 @@ describe("ultra-merge API", () => {
     const response = await req;
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/42/i);
+  });
+
+  it("converts images to PDFs before merging", async () => {
+    const response = await request(app)
+      .post("/api/merge")
+      .field("includeBlank", "false")
+      .attach("files", Buffer.from("img"), "photo.png")
+      .attach("files", fakePdfBuffer(), "one.pdf");
+
+    expect(response.status).toBe(200);
+    const commands = mockExecFile.mock.calls.map((call) => call[0]);
+    expect(commands).toEqual(["img2pdf", "pdfunite"]);
+  });
+
+  it("converts text files to PDFs before merging", async () => {
+    const response = await request(app)
+      .post("/api/merge")
+      .field("includeBlank", "false")
+      .attach("files", Buffer.from("hello world"), "notes.txt")
+      .attach("files", fakePdfBuffer(), "one.pdf");
+
+    expect(response.status).toBe(200);
+    const commands = mockExecFile.mock.calls.map((call) => call[0]);
+    expect(commands).toEqual(["enscript", "ps2pdf", "pdfunite"]);
   });
 
   it("merges PDFs and returns a download", async () => {

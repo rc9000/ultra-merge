@@ -147,12 +147,12 @@ dropzone.addEventListener("click", () => {
 
 mergeButton.addEventListener("click", async () => {
   if (selectedFiles.length === 0) {
-    setStatus("Please add at least one PDF.", "error");
+    setStatus("Please add at least one file.", "error");
     return;
   }
 
   mergeButton.disabled = true;
-  setStatus("Merging your PDFs…", "info");
+  setStatus("Merging your files…", "info");
 
   try {
     const formData = new FormData();

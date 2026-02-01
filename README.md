@@ -14,6 +14,8 @@ Supports various inputs:
 - Node.js 24+
 - `pdfunite` (from `poppler-utils`)
 - `ghostscript` (for blank-page generation)
+- `img2pdf` (for JPEG/PNG inputs)
+- `enscript` (for TXT inputs)
 
 ## Local development
 

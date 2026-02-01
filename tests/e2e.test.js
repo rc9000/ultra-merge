@@ -3,7 +3,7 @@ const fsp = require("fs/promises");
 const os = require("os");
 const path = require("path");
 const request = require("supertest");
-const { execFile } = require("child_process");
+const { execFile, spawnSync } = require("child_process");
 const { promisify } = require("util");
 
 const { app } = require("../server/index");
@@ -13,6 +13,15 @@ const inputsRoot = path.join(__dirname, "inputs");
 const inspectionDir = "/tmp";
 
 jest.setTimeout(120000);
+
+function commandExists(command) {
+  const result = spawnSync("which", [command], { stdio: "ignore" });
+  return result.status === 0;
+}
+
+const hasImg2Pdf = commandExists("img2pdf");
+const hasEnscript = commandExists("enscript");
+const hasPs2Pdf = commandExists("ps2pdf");
 
 function binaryParser(res, callback) {
   const data = [];
@@ -48,13 +57,30 @@ describe("ultra-merge e2e pdf merges", () => {
   }
 
   cases.forEach((caseName) => {
-    test(`merges PDFs for ${caseName} and matches expected text`, async () => {
+    const caseDir = path.join(inputsRoot, caseName);
+    const caseFiles = fs.readdirSync(caseDir);
+    const needsImg = caseFiles.some((file) =>
+      [".png", ".jpg", ".jpeg"].includes(path.extname(file).toLowerCase())
+    );
+    const needsTxt = caseFiles.some(
+      (file) => path.extname(file).toLowerCase() === ".txt"
+    );
+    const missingTools =
+      (needsImg && !hasImg2Pdf) ||
+      (needsTxt && (!hasEnscript || !hasPs2Pdf));
+    const testFn = missingTools ? test.skip : test;
+
+    testFn(`merges PDFs for ${caseName} and matches expected text`, async () => {
       const caseDir = path.join(inputsRoot, caseName);
       const expectedPath = path.join(caseDir, "expected.json");
       const expected = JSON.parse(await fsp.readFile(expectedPath, "utf8"));
 
       const files = (await fsp.readdir(caseDir))
-        .filter((file) => file.toLowerCase().endsWith(".pdf"))
+        .filter((file) =>
+          [".pdf", ".png", ".jpg", ".jpeg", ".txt"].includes(
+            path.extname(file).toLowerCase()
+          )
+        )
         .sort((a, b) => a.localeCompare(b));
 
       expect(files.length).toBeGreaterThan(0);
@@ -72,7 +98,10 @@ describe("ultra-merge e2e pdf merges", () => {
       expect(response.status).toBe(200);
       expect(response.headers["content-disposition"]).toMatch(/merged\.pdf/);
 
-      const inspectionPath = path.join(inspectionDir, `${caseName}.pdf`);
+      const inspectionPath = path.join(
+        inspectionDir,
+        `ultra-merge-test-${caseName}.pdf`
+      );
       const tempDir = await fsp.mkdtemp(
         path.join(os.tmpdir(), "ultra-merge-e2e-")
       );

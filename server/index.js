@@ -75,6 +75,23 @@ async function moveFile(src, dest) {
   await fs.rename(src, dest);
 }
 
+const allowedExtensions = new Set([".pdf", ".png", ".jpg", ".jpeg", ".txt"]);
+
+async function convertImageToPdf(inputPath, outputPath) {
+  await runCommand("img2pdf", [inputPath, "-o", outputPath]);
+}
+
+async function convertTextToPdf(inputPath, outputPath) {
+  const psPath = outputPath.replace(/\.pdf$/i, ".ps");
+  await runCommand("enscript", ["-B", "-o", psPath, inputPath]);
+  await runCommand("ps2pdf", [psPath, outputPath]);
+  try {
+    await fs.unlink(psPath);
+  } catch (error) {
+    // Ignore cleanup failure for intermediate files.
+  }
+}
+
 async function removeDir(dirPath) {
   try {
     if (existsSync(dirPath)) {
@@ -91,7 +108,7 @@ app.post("/api/merge", (req, res) => {
   uploadFiles(req, res, async (err) => {
     if (err) {
       if (err.code === "LIMIT_FILE_COUNT") {
-        res.status(400).json({ error: "You can upload up to 42 PDFs." });
+        res.status(400).json({ error: "You can upload up to 42 files." });
         return;
       }
       res.status(400).json({ error: "Upload failed. Please try again." });
@@ -99,7 +116,12 @@ app.post("/api/merge", (req, res) => {
     }
 
     const jobDir = await fs.mkdtemp(path.join(os.tmpdir(), "ultra-merge-"));
-    const cleanup = async () => removeDir(jobDir);
+    let cleaned = false;
+    const cleanup = async () => {
+      if (cleaned) return;
+      cleaned = true;
+      await removeDir(jobDir);
+    };
 
     res.on("finish", cleanup);
     res.on("close", cleanup);
@@ -109,45 +131,70 @@ app.post("/api/merge", (req, res) => {
       const files = req.files || [];
 
       if (files.length === 0) {
-        res.status(400).json({ error: "Please upload at least one PDF." });
+        await cleanup();
+        res.status(400).json({ error: "Please upload at least one file." });
         return;
       }
 
       if (files.length > 42) {
-        res.status(400).json({ error: "You can upload up to 42 PDFs." });
+        await cleanup();
+        res.status(400).json({ error: "You can upload up to 42 files." });
         return;
       }
 
       await ensureDir(jobDir);
 
-      const movedFiles = [];
+      const pdfFiles = [];
       for (const file of files) {
         const ext = path.extname(file.originalname).toLowerCase();
-        if (ext !== ".pdf") {
+        if (!allowedExtensions.has(ext)) {
           try {
             await fs.unlink(file.path);
           } catch (error) {
             // Ignore cleanup failure for invalid files.
           }
-          res.status(400).json({ error: "All files must be PDFs." });
+          await cleanup();
+          res.status(400).json({
+            error: "Files must be PDF, PNG, JPG, JPEG, or TXT."
+          });
           return;
         }
         const targetPath = path.join(jobDir, path.basename(file.path));
         await moveFile(file.path, targetPath);
-        movedFiles.push(targetPath);
+
+        if (ext === ".pdf") {
+          pdfFiles.push(targetPath);
+          continue;
+        }
+
+        const pdfPath = path.join(
+          jobDir,
+          `${path.basename(targetPath, ext)}.pdf`
+        );
+        if (ext === ".txt") {
+          await convertTextToPdf(targetPath, pdfPath);
+        } else {
+          await convertImageToPdf(targetPath, pdfPath);
+        }
+        try {
+          await fs.unlink(targetPath);
+        } catch (error) {
+          // Ignore cleanup failure for converted files.
+        }
+        pdfFiles.push(pdfPath);
       }
 
       let blankPath = null;
-      if (includeBlank && movedFiles.length > 1) {
-        const { width, height } = await getFirstPageSize(movedFiles[0]);
+      if (includeBlank && pdfFiles.length > 1) {
+        const { width, height } = await getFirstPageSize(pdfFiles[0]);
         blankPath = path.join(jobDir, "blank.pdf");
         await createBlankPdf(blankPath, width, height);
       }
 
       const inputs = [];
-      movedFiles.forEach((filePath, index) => {
+      pdfFiles.forEach((filePath, index) => {
         inputs.push(filePath);
-        if (blankPath && index < movedFiles.length - 1) {
+        if (blankPath && index < pdfFiles.length - 1) {
           inputs.push(blankPath);
         }
       });
@@ -155,8 +202,11 @@ app.post("/api/merge", (req, res) => {
       const outputPath = path.join(jobDir, "merged.pdf");
       await runCommand("pdfunite", [...inputs, outputPath]);
 
-      res.download(outputPath, "merged.pdf");
+      res.download(outputPath, "merged.pdf", async () => {
+        await cleanup();
+      });
     } catch (error) {
+      await cleanup();
       res.status(500).json({ error: "Merge failed. Please try again." });
     }
   });

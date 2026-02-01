@@ -15,10 +15,10 @@
         <p class="eyebrow">ultra-merge</p>
         <h1>Merge PDFs with calm confidence.</h1>
         <ul>
-	  <li>processed in the EU</li>
+	        <li>produced in Switzerland, data processing in Germany (demo site) or locally (when self-hosting)</li>
           <li>made using only open source software</li>
           <li>ad-free grift-free sourcecode-free money-free</li>
-	  <li>inputs and outputs deleted immediately after use</li>
+	        <li>inputs, temporary files and outputs deleted immediately after use</li>
         </ul>
         <p class="lede">
           Drop up to 42 files, stitch them together with optional blank pages in
@@ -31,20 +31,20 @@
           <input
             type="file"
             id="fileInput"
-            accept="application/pdf"
+            accept=".pdf,.png,.jpg,.jpeg,.txt,application/pdf,image/png,image/jpeg,text/plain"
             multiple
           />
           <div class="dropzone-content">
-            <div class="badge">Drag & drop PDFs</div>
+            <div class="badge">Drag & drop files</div>
             <p>or click to browse your computer</p>
-            <span class="hint">Up to 42 PDFs · Max one request at a time</span>
+            <span class="hint">PDF, PNG, JPG, TXT · Up to 42 files</span>
           </div>
         </div>
 
         <div class="options">
           <label class="checkbox">
             <input type="checkbox" id="includeBlank" />
-            <span>Insert a blank page between each PDF</span>
+            <span>Insert a blank page between each document</span>
           </label>
           <div class="count" id="fileCount">0 / 42 files</div>
         </div>
@@ -52,7 +52,7 @@
         <div class="file-list" id="fileList" aria-live="polite"></div>
 
         <div class="actions">
-          <button class="primary" id="mergeButton">Merge PDFs</button>
+          <button class="primary" id="mergeButton">Merge files</button>
           <p class="status" id="status"></p>
         </div>
       </section>
