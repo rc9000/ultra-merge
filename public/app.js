@@ -146,8 +146,8 @@ dropzone.addEventListener("click", () => {
 });
 
 mergeButton.addEventListener("click", async () => {
-  if (selectedFiles.length === 0) {
-    setStatus("Please add at least one file.", "error");
+  if (selectedFiles.length < 2) {
+    setStatus("Please add at least two files.", "error");
     return;
   }
 

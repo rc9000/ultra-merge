@@ -130,9 +130,9 @@ app.post("/api/merge", (req, res) => {
       const includeBlank = req.body.includeBlank === "true";
       const files = req.files || [];
 
-      if (files.length === 0) {
+      if (files.length < 2) {
         await cleanup();
-        res.status(400).json({ error: "Please upload at least one file." });
+        res.status(400).json({ error: "Please upload at least two files." });
         return;
       }
 

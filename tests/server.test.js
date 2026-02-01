@@ -75,18 +75,19 @@ describe("ultra-merge API", () => {
     expect(response.body.status).toBe("ok");
   });
 
-  it("rejects empty uploads", async () => {
+  it("rejects uploads with fewer than two files", async () => {
     const response = await request(app)
       .post("/api/merge")
       .field("includeBlank", "false");
     expect(response.status).toBe(400);
-    expect(response.body.error).toMatch(/upload at least one/i);
+    expect(response.body.error).toMatch(/at least two/i);
   });
 
-  it("rejects non-pdf files", async () => {
+  it("rejects unsupported file types", async () => {
     const response = await request(app)
       .post("/api/merge")
-      .attach("files", Buffer.from("hello"), "notes.docx");
+      .attach("files", Buffer.from("hello"), "notes.docx")
+      .attach("files", fakePdfBuffer(), "one.pdf");
 
     expect(response.status).toBe(400);
     expect(response.body.error).toMatch(/pdf|png|jpg|txt/i);
