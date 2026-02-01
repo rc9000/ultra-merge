@@ -2,7 +2,7 @@
 
 ## Specification
 
- * ultra-merge is a web application to merge PDF files
+ * ultra-merge is a web application to merge files into a single pdf
  * the core technology is `pdfunite doc1.pdf doc2.pdf ... docN.pdf combined.pdf`
  * the user can upload up to 42 pdf files through a web frontend with drag and drop control
  * there is an option to include a blank page inbetween 

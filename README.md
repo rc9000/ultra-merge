@@ -1,6 +1,13 @@
 # ultra-merge
 
-ultra-merge is a trustworthy tool to merge PDFs online. It uses `pdfunite` under the hood, supports drag-and-drop uploads (up to 42 files), and can insert blank pages between PDFs before downloading the merged result.
+ultra-merge is a trustworthy tool to merge multiple documents into a single PDF online. It uses `pdfunite` under the hood, supports drag-and-drop uploads (up to 42 files), and can insert blank pages between pages before downloading the merged result.
+
+Supports various inputs:
+
+ * pdf
+ * jpeg
+ * png
+ * txt
 
 ## Requirements
 
