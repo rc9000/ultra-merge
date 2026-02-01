@@ -166,7 +166,8 @@ mergeButton.addEventListener("click", async () => {
 
     if (!response.ok) {
       const data = await response.json().catch(() => ({}));
-      throw new Error(data.error || "Merge failed.");
+      const detail = data.detail ? ` (${data.detail})` : "";
+      throw new Error((data.error || "Merge failed.") + detail);
     }
 
     const blob = await response.blob();
@@ -189,3 +190,20 @@ mergeButton.addEventListener("click", async () => {
 });
 
 renderFiles();
+
+async function loadVersion() {
+  const versionNode = document.getElementById("appVersion");
+  if (!versionNode) return;
+  try {
+    const response = await fetch("/api/version");
+    if (!response.ok) return;
+    const data = await response.json();
+    if (data && data.version) {
+      versionNode.textContent = data.version;
+    }
+  } catch (error) {
+    // Leave placeholder when version fetch fails.
+  }
+}
+
+loadVersion();

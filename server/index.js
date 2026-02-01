@@ -6,6 +6,7 @@ const fs = require("fs/promises");
 const { existsSync } = require("fs");
 const { execFile } = require("child_process");
 const { promisify } = require("util");
+const packageJson = require("../package.json");
 
 const execFileAsync = promisify(execFile);
 
@@ -27,6 +28,10 @@ app.use(express.static(path.join(__dirname, "..", "public")));
 
 app.get("/health", (req, res) => {
   res.json({ status: "ok" });
+});
+
+app.get("/api/version", (req, res) => {
+  res.json({ version: packageJson.version });
 });
 
 async function runCommand(command, args, options = {}) {
@@ -207,7 +212,10 @@ app.post("/api/merge", (req, res) => {
       });
     } catch (error) {
       await cleanup();
-      res.status(500).json({ error: "Merge failed. Please try again." });
+      res.status(500).json({
+        error: "Merge failed. Please try again.",
+        detail: error && error.message ? error.message : "Unknown error"
+      });
     }
   });
 });
